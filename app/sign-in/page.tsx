@@ -8,7 +8,7 @@ export default function SignInPage() {
 
   return (
     <div>
-      <h1>Sign In</h1>
+      <h1>Sign In Page</h1>
       {session ? (
         <div>
           <p>Signed in as {session.user?.email}</p>

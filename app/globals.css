@@ -19,3 +19,57 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer base {
+  /* Headings */
+  h1 {
+    @apply text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 tracking-tight leading-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-3 tracking-normal;
+  }
+
+  h3 {
+    @apply text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2;
+  }
+
+  /* Paragraph */
+  p {
+    @apply text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-3;
+  }
+
+  /* Buttons */
+  button, 
+  .btn {
+    @apply px-4 py-2 rounded-md transition-colors duration-200 
+           focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 
+           focus:ring-blue-500;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 
+           focus:ring-gray-400;
+  }
+
+  /* Links */
+  a {
+    @apply text-blue-600 dark:text-blue-400 hover:text-blue-800 
+           underline-offset-2 transition-colors;
+  }
+
+  /* List Styles */
+  ul, ol {
+    @apply pl-5 mb-3;
+  }
+
+  li {
+    @apply text-gray-600 dark:text-gray-400 mb-1 leading-relaxed;
+  }
+}
