@@ -53,3 +53,4 @@ Could go 1 of 3 ways, either User Generated, Web Scraping or APIs
 - [ ] Cooking Streak like Duolingo
 - [ ] Add friends to see what recipes they save, create, cook to get recommendations
 - [ ] My Cupboard - dynamic list of everything you have on hand. updates when you cook recipes and when you buy shopping
+- [ ] Scan in receipt to add to cupboard

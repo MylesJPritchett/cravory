@@ -1,7 +1,18 @@
-import type { NextConfig } from "next";
+import { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  /* config options here */
+  env: {
+    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  },
+  webpack: (config) => {
+    config.externals.push({
+      "better-sqlite3": "commonjs better-sqlite3",
+    });
+    return config;
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
