@@ -14,6 +14,8 @@
   "dependencies": {
     "@auth/drizzle-adapter": "^1.7.4",
     "@libsql/client": "^0.14.0",
+    "@neondatabase/serverless": "^0.10.4",
+    "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.1",
     "next": "15.1.6",
     "next-auth": "^4.24.11",

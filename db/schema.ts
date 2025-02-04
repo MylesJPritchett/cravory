@@ -1,21 +1,14 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, timestamp } from "drizzle-orm/pg-core";
 
-export const recipes = sqliteTable("recipes", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name"),
-});
-
-// user table
-export const user = sqliteTable("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name"),
   email: text("email").notNull().unique(),
-  emailVerified: integer("emailVerified", { mode: "timestamp" }),
+  emailVerified: timestamp("emailVerified"),
   image: text("image"),
 });
 
-// account table
-export const account = sqliteTable("account", {
+export const account = pgTable("account", {
   userId: text("userId")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -31,18 +24,16 @@ export const account = sqliteTable("account", {
   session_state: text("session_state"),
 });
 
-// session table
-export const session = sqliteTable("session", {
+export const session = pgTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  expires: integer("expires", { mode: "timestamp" }).notNull(),
+  expires: timestamp("expires").notNull(),
 });
 
-// Verification token table
-export const verificationToken = sqliteTable("verificationToken", {
+export const verificationToken = pgTable("verificationToken", {
   identifier: text("identifier").notNull(),
   token: text("token").notNull(),
-  expires: integer("expires", { mode: "timestamp" }).notNull(),
+  expires: timestamp("expires").notNull(),
 });
