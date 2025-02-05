@@ -2,9 +2,18 @@
 "use client";
 
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function SignInPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/"); // Redirect to the home page if the user is logged in
+    }
+  }, [session, router]);
 
   return (
     <div>
