@@ -1,5 +1,4 @@
 // app/recipe/[id]/page.tsx
-import { Recipe } from '@/db/schema';
 import RecipeDisplay from './RecipeDisplay';
 
 async function getRecipe(id: string) {
@@ -18,16 +17,15 @@ async function getRecipe(id: string) {
 }
 
 export default async function RecipePage({
-  params
+  params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>;
 }) {
-  // Ensure params.id exists before using it
-  if (!params?.id) {
+  const resolvedParams = await params;
+  if (!resolvedParams.id) {
     throw new Error('Recipe ID is required');
   }
 
-  const recipe = await getRecipe(params.id);
-
+  const recipe = await getRecipe(resolvedParams.id);
   return <RecipeDisplay recipe={recipe} />;
 }

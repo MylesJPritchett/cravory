@@ -35,8 +35,6 @@ export interface APIResponse<T> {
   error?: string;
 }
 
-export interface RecipeResponse extends APIResponse<RecipeWithFoods> { }
-
 // Route parameter types
 export interface RecipeParams {
   params: {

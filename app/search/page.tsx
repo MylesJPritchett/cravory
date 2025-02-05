@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 interface SearchResults {
@@ -11,16 +11,17 @@ export default function Search() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResults>({ recipes: [], foods: [] });
 
-  const handleSearch = async (event?: React.FormEvent) => {
-    if (event) event.preventDefault(); // Prevent form submission reload
+  const handleSearch = useCallback(async (event?: React.FormEvent) => {
+    if (event) event.preventDefault();
     const response = await fetch(`/api/search?query=${query}`);
     const data = await response.json();
     setResults(data);
-  };
+  }, [query]); // Add query as dependency since it's used inside
 
   useEffect(() => {
-    handleSearch(); // Fetch all results on page load
-  }, []);
+    handleSearch();
+  }, [handleSearch]);
+
 
   return (
     <div className="flex flex-col items-center min-h-screen w-full">
