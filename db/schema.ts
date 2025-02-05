@@ -1,4 +1,5 @@
-import { pgTable, text, integer, timestamp, boolean, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { type InferSelectModel, type InferInsertModel, sql } from "drizzle-orm";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -38,79 +39,127 @@ export const verificationToken = pgTable("verificationToken", {
   expires: timestamp("expires").notNull(),
 });
 
-// Ingredients table
-export const ingredient = pgTable("ingredient", {
-  id: text("id").primaryKey(),
+// Classification table
+export const classification = pgTable("classification", {
+  id: integer("id").primaryKey().notNull().default(sql`nextval('classification_id_seq')`),
+  name: text("name"),
+});
+
+export type Classification = InferSelectModel<typeof classification>;
+export type InsertClassification = InferInsertModel<typeof classification>;
+
+// Food table
+export const food = pgTable("food", {
+  id: integer("id").primaryKey().notNull().default(sql`nextval('food_id_seq')`),
+  public_food_key: text("public_food_key").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
-  isVegan: boolean("isVegan").default(false),  // Flag for vegan ingredient
-  isVegetarian: boolean("isVegetarian").default(false), // Flag for vegetarian ingredient
+  derivation: text("derivation"),
+  sampling_details: text("sampling_details"),
+  classification_id: integer("classification_id").references(() => classification.id),
 
-  // Nutritional information (per 100g), all optional
-  // Macronutrients (per 100g)
-  calories: integer("calories"), // kcal
-  protein: integer("protein"),   // grams
-  carbohydrates: integer("carbohydrates"), // grams
-  sugars: integer("sugars"),     // grams
-  fiber: integer("fiber"),       // grams
-  fat: integer("fat"),           // grams
-  saturatedFat: integer("saturatedFat"), // grams
-  monounsaturatedFat: integer("monounsaturatedFat"), // grams
-  polyunsaturatedFat: integer("polyunsaturatedFat"), // grams
-  transFat: integer("transFat"), // grams
-  cholesterol: integer("cholesterol"), // mg
+  // Core nutritional values
+  energy: decimal("energy"),
+  energy_without_fiber: decimal("energy_without_fiber"),
+  water: decimal("water"),
+  protein: decimal("protein"),
+  fat: decimal("fat"),
+  carbohydrates: decimal("carbohydrates"),
+  fiber: decimal("fiber"),
 
-  // Micronutrients (per 100g)
-  sodium: integer("sodium"),     // mg
-  potassium: integer("potassium"), // mg
-  calcium: integer("calcium"),    // mg
-  iron: integer("iron"),          // mg
-  magnesium: integer("magnesium"), // mg
-  vitaminA: integer("vitaminA"),   // IU or mcg
-  vitaminC: integer("vitaminC"),   // mg
-  vitaminD: integer("vitaminD"),   // IU or mcg
-  vitaminK: integer("vitaminK"),   // mcg
-  folate: integer("folate"),       // mcg
-  vitaminB12: integer("vitaminB12"), // mcg
-  zinc: integer("zinc"),          // mg
-  phosphorus: integer("phosphorus"), // mg
+  // Detailed nutrients
+  sugars: decimal("sugars"),
+  added_sugars: decimal("added_sugars"),
+  saturated_fat: decimal("saturated_fat"),
+  monounsaturated_fat: decimal("monounsaturated_fat"),
+  polyunsaturated_fat: decimal("polyunsaturated_fat"),
+  trans_fat: decimal("trans_fat"),
+  cholesterol: decimal("cholesterol"),
 
-  // Optional components
-  water: integer("water"),        // g
-  glycemicIndex: integer("glycemicIndex"), // Optional
-  caffeine: integer("caffeine"),   // mg
-  omega3: integer("omega3"),       // g
-  omega6: integer("omega6"),       // g
+  // Minerals
+  sodium: decimal("sodium"),
+  potassium: decimal("potassium"),
+  calcium: decimal("calcium"),
+  iron: decimal("iron"),
+  magnesium: decimal("magnesium"),
+  zinc: decimal("zinc"),
+  phosphorus: decimal("phosphorus"),
+
+  // Vitamins
+  vitamin_a: decimal("vitamin_a"),
+  vitamin_c: decimal("vitamin_c"),
+  vitamin_d: decimal("vitamin_d"),
+  vitamin_e: decimal("vitamin_e"),
+  vitamin_b12: decimal("vitamin_b12"),
+  folate: decimal("folate"),
+
+  // Additional components
+  caffeine: decimal("caffeine"),
+  alcohol: decimal("alcohol"),
+
+  is_vegan: boolean("is_vegan").default(false),
+  is_vegetarian: boolean("is_vegetarian").default(false),
 });
 
-// Recipes table
+export type Food = InferSelectModel<typeof food>;
+export type InsertFood = InferInsertModel<typeof food>;
+
+// Measures table
+export const measure = pgTable("measure", {
+  id: integer("id").primaryKey().notNull().default(sql`nextval('measure_id_seq')`),
+  food_id: integer("food_id").references(() => food.id),
+  description: text("description").notNull(),
+  weight: decimal("weight"),
+  volume: decimal("volume"),
+});
+
+export type Measure = InferSelectModel<typeof measure>;
+export type InsertMeasure = InferInsertModel<typeof measure>;
+
+// Recipe table
+
 export const recipe = pgTable("recipe", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(), // The name of the recipe
-  description: text("description"), // Optional description of the recipe
-  cookingTime: integer("cookingTime"), // Time in minutes
-  servings: integer("servings"), // Number of servings
-  createdAt: timestamp("createdAt").defaultNow(), // Timestamp for recipe creation
-
+  id: integer("id").primaryKey().notNull().default(sql`nextval('recipe_id_seq')`),
+  public_food_key: text("public_food_key").notNull().unique(), // Match dataset
+  name: text("name").notNull(),
+  description: text("description"),
+  cooking_time: integer("cooking_time"),
+  servings: integer("servings"),
+  total_weight_change: decimal("total_weight_change"), // Renamed for clarity
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-// Join table to associate ingredients with recipes (many-to-many relationship)
-export const recipeIngredient = pgTable("recipeIngredient", {
-  recipeId: text("recipeId")
-    .notNull()
-    .references(() => recipe.id, { onDelete: "cascade" }), // Foreign key to recipe
-  ingredientId: text("ingredientId")
-    .notNull()
-    .references(() => ingredient.id, { onDelete: "cascade" }), // Foreign key to ingredient
-  quantity: varchar("quantity").notNull(), // Quantity of the ingredient in the recipe
-  unit: text("unit"), // Optional unit (e.g., "g", "ml")
+export type Recipe = InferSelectModel<typeof recipe>;
+export type InsertRecipe = InferInsertModel<typeof recipe>;
+
+
+
+export const recipeFood = pgTable("recipe_food", {
+  id: integer("id").primaryKey().notNull().default(sql`nextval('recipe_food_id_seq')`),
+  recipe_id: integer("recipe_id").notNull().references(() => recipe.id, { onDelete: "cascade" }),
+  food_id: integer("food_id").notNull().references(() => food.id), // Links food to recipe
+  food_weight: decimal("food_weight").notNull(), // Amount of the food used in the recipe
+  retention_factor_id: integer("retention_factor_id").references(() => retentionFactor.id), // Optional
 });
 
-export const unitConversion = pgTable("unitConversion", {
-  ingredientId: text("ingredientId")
-    .notNull()
-    .references(() => ingredient.id, { onDelete: "cascade" }),
-  fromUnit: text("fromUnit").notNull(),  // e.g., "cup"
-  toUnit: text("toUnit").notNull(),      // e.g., "g" (grams)
-  conversionFactor: integer("conversionFactor").notNull(), // e.g., 200 for converting "cup" to "g"
+export type RecipeFood = InferSelectModel<typeof recipeFood>;
+export type InsertRecipeFood = InferInsertModel<typeof recipeFood>;
+
+
+// Retention factor table
+export const retentionFactor = pgTable("retention_factor", {
+  id: integer("id").primaryKey().notNull().default(sql`nextval('retention_id_seq')`),
+  description: text("description").notNull(),
+  vitamin_a: decimal("vitamin_a"),
+  vitamin_c: decimal("vitamin_c"),
+  vitamin_d: decimal("vitamin_d"),
+  vitamin_e: decimal("vitamin_e"),
+  vitamin_b12: decimal("vitamin_b12"),
+  calcium: decimal("calcium"),
+  iron: decimal("iron"),
 });
+
+export type RetentionFactor = InferSelectModel<typeof retentionFactor>;
+export type InsertRetentionFactor = InferInsertModel<typeof retentionFactor>;
+
+

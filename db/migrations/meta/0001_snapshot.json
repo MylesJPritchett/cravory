@@ -1,6 +1,6 @@
 {
-  "id": "5caf6083-ef37-43ff-b941-935fcc6c0b9b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "170df12d-d49b-4a32-bb16-b945aabe19e9",
+  "prevId": "5caf6083-ef37-43ff-b941-935fcc6c0b9b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -458,6 +458,12 @@
           "notNull": true,
           "default": "nextval('recipe_id_seq')"
         },
+        "public_food_key": {
+          "name": "public_food_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -482,8 +488,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "weight_change": {
-          "name": "weight_change",
+        "total_weight_change": {
+          "name": "total_weight_change",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false
@@ -498,6 +504,98 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "recipe_public_food_key_unique": {
+          "name": "recipe_public_food_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "public_food_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.recipe_food": {
+      "name": "recipe_food",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "nextval('recipe_food_id_seq')"
+        },
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "food_id": {
+          "name": "food_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "food_weight": {
+          "name": "food_weight",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "retention_factor_id": {
+          "name": "retention_factor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recipe_food_recipe_id_recipe_id_fk": {
+          "name": "recipe_food_recipe_id_recipe_id_fk",
+          "tableFrom": "recipe_food",
+          "tableTo": "recipe",
+          "columnsFrom": [
+            "recipe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "recipe_food_food_id_food_id_fk": {
+          "name": "recipe_food_food_id_food_id_fk",
+          "tableFrom": "recipe_food",
+          "tableTo": "food",
+          "columnsFrom": [
+            "food_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "recipe_food_retention_factor_id_retention_factor_id_fk": {
+          "name": "recipe_food_retention_factor_id_retention_factor_id_fk",
+          "tableFrom": "recipe_food",
+          "tableTo": "retention_factor",
+          "columnsFrom": [
+            "retention_factor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

@@ -7,7 +7,7 @@ export default function Header() {
   const { data: session } = useSession();  // Call the useSession hook here
 
   return (
-    <header className="flex justify-between items-center p-4 bg-gray-700 shadow-md">
+    <header className="sticky top-0 flex justify-between items-center p-4 bg-gray-700 shadow-md">
       <div>
         <Link href="/" className="text-xl font-bold text-red-500 hover:text-red-800">
           Cravory

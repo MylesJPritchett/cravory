@@ -1,31 +1,37 @@
 import { NextResponse } from "next/server";
-import db from "@/db"; // Import your database configuration
-import { recipe, ingredient } from "@/db/schema"; // Adjust based on your schema
-import { sql } from "drizzle-orm"; // Import raw SQL if needed for advanced queries
+import db from "@/db";
+import { recipe, food } from "@/db/schema";
+import { ilike } from "drizzle-orm";
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const query = url.searchParams.get("query")?.toLowerCase() || "";
+  try {
+    const url = new URL(request.url);
+    const query = url.searchParams.get("query")?.trim().toLowerCase() || "";
 
-  if (!query) {
-    return NextResponse.json([]);
+    console.log("Search query:", query || "No query provided");
+
+    if (!query) {
+      // Fetch all recipes and ingredients in parallel
+      const [recipes, foods] = await Promise.all([
+        db.select().from(recipe),
+        db.select().from(food),
+      ]);
+
+      return NextResponse.json({ recipes, foods });
+    }
+
+    // Fetch matching recipes and ingredients concurrently
+    const [recipes, foods] = await Promise.all([
+      db.select().from(recipe).where(ilike(recipe.name, `%${query}%`)),
+      db.select().from(food).where(ilike(food.name, `%${query}%`)),
+    ]);
+
+    console.log(`Found ${recipes.length} recipes and ${foods.length} ingredients`);
+
+    return NextResponse.json({ recipes, foods });
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-
-  // Search for recipes using fuzzy search with pg_trgm (similarity)
-  const recipes = await db
-    .select()
-    .from(recipe)
-    .where(sql`similarity(${recipe.name}, ${query}) > 0.3`) // Adjust similarity threshold
-
-  // Optionally, search ingredients using fuzzy search with pg_trgm
-  const ingredients = await db
-    .select()
-    .from(ingredient)
-    .where(sql`similarity(${ingredient.name}, ${query}) > 0.3`) // Adjust similarity threshold
-
-  // Combine or separate the results depending on your use case
-  return NextResponse.json({
-    recipes,
-    ingredients,
-  });
 }
