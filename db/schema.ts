@@ -123,6 +123,7 @@ export const recipe = pgTable("recipe", {
   public_food_key: text("public_food_key").notNull().unique(), // Match dataset
   name: text("name").notNull(),
   description: text("description"),
+  method: text("method"),
   cooking_time: integer("cooking_time"),
   servings: integer("servings"),
   total_weight_change: decimal("total_weight_change"), // Renamed for clarity
