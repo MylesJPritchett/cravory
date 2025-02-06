@@ -27,16 +27,20 @@ export default function FoodDisplay({ food }: FoodDisplayProps) {
       )}
 
       {/* List of recipes using this food */}
-      <h2 className="text-xl font-semibold mt-6">Recipes that Use This</h2>
-      <div className="grid gap-4">
-        {food.recipes.map((recipe) => (
-          <div key={recipe.id} className="border rounded p-3">
-            <Link href={`/recipe/${recipe.id}`} className="text-blue-500">
-              {recipe.name}
-            </Link>
+      {food.recipes.length > 0 && ( // Conditionally render the section
+        <>
+          <h2 className="text-xl font-semibold mt-6">Recipes that Use This</h2>
+          <div className="grid gap-4">
+            {food.recipes.map((recipe) => (
+              <div key={recipe.id} className="border rounded p-3">
+                <Link href={`/recipe/${recipe.id}`} className="text-blue-500">
+                  {recipe.name}
+                </Link>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       {/* Nutritional Info */}
       <h2 className="text-xl font-semibold mt-6">Nutritional Information (per 100 grams)</h2>

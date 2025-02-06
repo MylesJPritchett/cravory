@@ -16,13 +16,13 @@ export default function Search() {
     const response = await fetch(`/api/search?query=${query}`);
     const data = await response.json();
     setResults(data);
-  }, [query]); // Add query as dependency since it's used inside
+  }, [query]);
 
   return (
     <div className="flex flex-col items-center min-h-screen w-full">
       {/* Sticky Search Box */}
       <div className="w-full bg-gray-800 shadow-md flex flex-col items-center py-4">
-        <h1 className="text-2xl font-bold mb-2">Recipe and food Search</h1>
+        <h1 className="text-2xl font-bold mb-2">Recipe and Food Search</h1>
         <form onSubmit={handleSearch} className="flex flex-col items-center w-full max-w-md">
           <input
             type="text"
@@ -36,9 +36,10 @@ export default function Search() {
       </div>
 
       {/* Search Results */}
-      <div className="mt-8 w-full max-w-md">
+      <div className="mt-8 w-full max-w-6xl flex justify-between space-x-4">
+        {/* Recipes Column */}
         {results.recipes.length > 0 && (
-          <div className="mt-4">
+          <div className="w-1/2">
             <h2 className="text-xl font-semibold">Recipes</h2>
             <ul className="list-disc list-inside">
               {results.recipes.map((recipe) => (
@@ -50,8 +51,9 @@ export default function Search() {
           </div>
         )}
 
+        {/* Foods Column */}
         {results.foods.length > 0 && (
-          <div className="mt-4">
+          <div className="w-1/2">
             <h2 className="text-xl font-semibold">Foods</h2>
             <ul className="list-disc list-inside">
               {results.foods.map((food) => (
@@ -63,6 +65,7 @@ export default function Search() {
           </div>
         )}
 
+        {/* No results found */}
         {results.recipes.length === 0 && results.foods.length === 0 && (
           <p className="mt-4 text-gray-500">No results found</p>
         )}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import db from "@/db";
 import { recipe, food } from "@/db/schema";
-import { ilike } from "drizzle-orm";
+import { sql } from "drizzle-orm"; // Assuming you're using Drizzle ORM's `sql` template tag
 
 export async function GET(request: Request) {
   try {
@@ -20,10 +20,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ recipes, foods });
     }
 
-    // Fetch matching recipes and ingredients concurrently
+    // Fuzzy search using PostgreSQL's pg_trgm similarity and order by closest match
     const [recipes, foods] = await Promise.all([
-      db.select().from(recipe).where(ilike(recipe.name, `%${query}%`)),
-      db.select().from(food).where(ilike(food.name, `%${query}%`)),
+      db.select().from(recipe).where(
+        sql`similarity(lower(${recipe.name}), lower(${query})) > 0.1`
+      ).orderBy(
+        sql`similarity(lower(${recipe.name}), lower(${query})) DESC` // Order by highest similarity first
+      ),
+      db.select().from(food).where(
+        sql`similarity(lower(${food.name}), lower(${query})) > 0.1`
+      ).orderBy(
+        sql`similarity(lower(${food.name}), lower(${query})) DESC` // Same here
+      ),
     ]);
 
     console.log(`Found ${recipes.length} recipes and ${foods.length} ingredients`);

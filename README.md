@@ -34,11 +34,11 @@ Could go 1 of 3 ways, either User Generated, Web Scraping or APIs
 
 ### Core Features
 
-- [ ] account creation and login (just using 3rd party)
+- [X] account creation and login (just using 3rd party)
 - [ ] User Generate Recipes
-- [ ] Search
+- [X] Search
 - [ ] Filters
-- [ ] Nutritional Information
+- [X] Nutritional Information
 - [ ] Price of Recipes made up of ingredients
 - [ ] save recipes to 'recipe book'
 - [ ] Recipe and Ingredient Combinatorics
