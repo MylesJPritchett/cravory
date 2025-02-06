@@ -13,7 +13,7 @@ interface FoodDisplayProps {
 export default function FoodDisplay({ food }: FoodDisplayProps) {
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold">{food.name}</h1>
+      <h1 className="text-2xl font-bold">FOOD: {food.name}</h1>
       {food.description && <p className="mt-4">{food.description}</p>}
 
       {/* Link to corresponding recipe */}

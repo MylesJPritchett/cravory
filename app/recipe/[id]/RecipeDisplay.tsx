@@ -25,7 +25,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold">{recipe.name}</h1>
+      <h1 className="text-2xl font-bold">RECIPE: {recipe.name}</h1>
 
       {recipe.description && (
         <p className="mt-4 text-gray-600">{recipe.description}</p>
