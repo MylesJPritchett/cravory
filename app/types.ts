@@ -26,9 +26,13 @@ export interface Ingredient extends Pick<Food,
 
 // Extended type for recipe with ingredients
 export interface RecipeWithFoods extends Omit<Recipe, 'public_food_key'> {
+  corresponding_food: Food;
   ingredients: Ingredient[];
 }
 
+export interface FoodWithRecipes extends Omit<Food, 'public_food_key'> {
+  recipes: Recipe[];
+}
 // API response types
 export interface APIResponse<T> {
   data?: T;

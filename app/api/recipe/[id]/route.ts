@@ -4,26 +4,26 @@ import db from "@/db";
 import { recipe, food, recipeFood } from "@/db/schema";
 
 // Define the combined type for the response
-interface RecipeWithFoods {
-  id: number;
-  name: string;
-  description: string | null;
-  method: string | null;
-  cooking_time: number | null;
-  servings: number | null;
-  created_at: Date | null;
-  ingredients: {
-    id: number;
-    name: string;
-    description: string | null;
-    weight: number;
-    protein: number | null;
-    fat: number | null;
-    carbohydrates: number | null;
-    energy: number | null;
-    fiber: number | null;
-  }[];
-}
+// interface RecipeWithFoods {
+//   id: number;
+//   name: string;
+//   description: string | null;
+//   method: string | null;
+//   cooking_time: number | null;
+//   servings: number | null;
+//   created_at: Date | null;
+//   ingredients: {
+//     id: number;
+//     name: string;
+//     description: string | null;
+//     weight: number;
+//     protein: number | null;
+//     fat: number | null;
+//     carbohydrates: number | null;
+//     energy: number | null;
+//     fiber: number | null;
+//   }[];
+// }
 
 export async function GET(
   request: Request,
@@ -37,6 +37,7 @@ export async function GET(
     const recipeData = await db
       .select({
         id: recipe.id,
+        public_food_key: recipe.public_food_key,
         name: recipe.name,
         description: recipe.description,
         method: recipe.method,
@@ -55,6 +56,19 @@ export async function GET(
         { status: 404 }
       );
     }
+
+
+    // Fetch corresponding recipe using public_food_key
+    const correspondingFood = await db
+      .select({
+        id: food.id,
+        name: food.name,
+        description: food.description,
+      })
+      .from(food)
+      .where(eq(food.public_food_key, recipeData[0].public_food_key))
+      .limit(1);
+
 
     // Then get all foods for this recipe
     const ingredients = await db
@@ -85,14 +99,11 @@ export async function GET(
       fiber: ingredient.fiber !== null ? Number(ingredient.fiber) : null,
     }));
 
-    // Combine the data
-    const recipeWithFoods: RecipeWithFoods = {
+    return NextResponse.json({
       ...recipeData[0],
+      corresponding_food: correspondingFood?.[0] || null,
       ingredients: formattedIngredients,
-    };
-
-
-    return NextResponse.json(recipeWithFoods);
+    });
   } catch (error) {
     console.error("Error fetching recipe:", error);
     return NextResponse.json(
