@@ -34,7 +34,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
       {/* Link to corresponding recipe */}
       {recipe.corresponding_food && (
         <div className="mt-4">
-          <h2 className="text-xl font-semibold">Recipe for this food</h2>
+          <h2 className="text-xl font-semibold">Food for this Recipe</h2>
           <Link href={`/food/${recipe.corresponding_food.id}`} className="text-blue-500">
             {recipe.corresponding_food.name}
           </Link>
@@ -59,7 +59,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
 
       {/* Display Total Nutritional Information */}
       <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-3">Total Nutritional Information (per 100 grams)</h2>
+        <h2 className="text-xl font-semibold mb-3">Total Nutritional Information</h2>
         <div className="space-y-2">
           <p><strong>Protein:</strong> {totalNutrition.protein.toFixed(2)}g</p>
           <p><strong>Fat:</strong> {totalNutrition.fat.toFixed(2)}g</p>
