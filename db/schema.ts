@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, timestamp, decimal, unique } from "drizzle-orm/pg-core";
 import { type InferSelectModel, type InferInsertModel, sql } from "drizzle-orm";
 
 export const user = pgTable("user", {
@@ -141,7 +141,14 @@ export const recipeFood = pgTable("recipe_food", {
   food_id: integer("food_id").notNull().references(() => food.id), // Links food to recipe
   food_weight: decimal("food_weight").notNull(), // Amount of the food used in the recipe
   retention_factor_id: integer("retention_factor_id").references(() => retentionFactor.id), // Optional
-});
+},
+  (table) => {
+    return {
+      uniqueRecipeFood: unique('unique_recipe_food').on(table.recipe_id, table.food_id),
+    };
+  }
+);
+
 
 export type RecipeFood = InferSelectModel<typeof recipeFood>;
 export type InsertRecipeFood = InferInsertModel<typeof recipeFood>;

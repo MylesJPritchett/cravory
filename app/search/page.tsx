@@ -57,10 +57,12 @@ export default function Search() {
 
         {results.foods.length > 0 && (
           <div className="mt-4">
-            <h2 className="text-xl font-semibold">foods</h2>
+            <h2 className="text-xl font-semibold">Foods</h2>
             <ul className="list-disc list-inside">
               {results.foods.map((food) => (
-                <li key={food.id}>{food.name}</li>
+                <li key={food.id}>
+                  <Link href={`/food/${food.id}`} className="text-blue-500">{food.name}</Link>
+                </li>
               ))}
             </ul>
           </div>
