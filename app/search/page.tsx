@@ -18,11 +18,6 @@ export default function Search() {
     setResults(data);
   }, [query]); // Add query as dependency since it's used inside
 
-  useEffect(() => {
-    handleSearch();
-  }, [handleSearch]);
-
-
   return (
     <div className="flex flex-col items-center min-h-screen w-full">
       {/* Sticky Search Box */}
