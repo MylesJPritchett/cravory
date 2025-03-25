@@ -3,25 +3,6 @@ import { eq } from "drizzle-orm";
 import db from "@/db";
 import { food, recipe, recipeFood } from "@/db/schema";
 
-// interface FoodWithRecipes {
-//   id: number;
-//   name: string;
-//   description: string | null;
-//   protein: string | null;
-//   fat: string | null;
-//   carbohydrates: string | null;
-//   energy: string | null;
-//   fiber: string | null;
-//   corresponding_recipe: Recipe | null;
-//   recipes: {
-//     id: number;
-//     name: string;
-//     description: string | null;
-//     cooking_time: number | null;
-//     servings: number | null;
-//   }[];
-// }
-
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

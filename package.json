@@ -14,14 +14,18 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.7.4",
+    "@hello-pangea/dnd": "^18.0.1",
     "@libsql/client": "^0.14.0",
     "@neondatabase/serverless": "^0.10.4",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.1",
+    "lucide-react": "^0.483.0",
     "next": "^15.2.4",
     "next-auth": "^4.24.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-select": "^5.10.1",
+    "uuid": "^11.1.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
