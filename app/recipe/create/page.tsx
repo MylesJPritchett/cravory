@@ -10,6 +10,10 @@ import {
   Draggable,
   DropResult
 } from '@hello-pangea/dnd';
+import {
+  Food
+} from '@/app/types';
+
 
 export default function CreateRecipePage() {
   const [formData, setFormData] = useState({
@@ -19,13 +23,13 @@ export default function CreateRecipePage() {
     cooking_time: 0,
     servings: 0,
     ingredients: [] as {
-      foodId: number;
+      id: number;
       foodName: string;
       weight: number;
       notes?: string;
     }[],
   });
-  const [foods, setFoods] = useState<any[]>([]);
+  const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -75,27 +79,6 @@ export default function CreateRecipePage() {
     }
   };
 
-  const handleIngredientChange = (
-    selectedOption: any,
-    actionMeta: any
-  ) => {
-    if (actionMeta.action === "select-option") {
-      const selectedFood = selectedOption;
-      const newIngredient = {
-        foodId: selectedFood.value,
-        foodName: selectedFood.label,
-        weight: 100, // default weight value
-        notes: '', // optional notes field
-      };
-
-      // Add a new blank ingredient selection
-      setFormData((prev) => ({
-        ...prev,
-        ingredients: [...prev.ingredients, newIngredient],
-      }));
-    }
-  };
-
   const removeIngredient = (indexToRemove: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -103,7 +86,7 @@ export default function CreateRecipePage() {
     }));
   };
 
-  const updateIngredient = (index: number, field: keyof typeof formData.ingredients[0], value: any) => {
+  const updateIngredient = (index: number, field: keyof typeof formData.ingredients[0], value: string | number) => {
     setFormData((prev) => ({
       ...prev,
       ingredients: prev.ingredients.map((ingredient, i) =>
@@ -165,8 +148,6 @@ export default function CreateRecipePage() {
 
       const data = await response.json();
 
-
-
       if (response.ok) {
         setSuccessMessage(`Recipe created successfully: ${data.recipe.name}`);
         router.push(`/recipe/${data.recipe.id}`);
@@ -186,8 +167,6 @@ export default function CreateRecipePage() {
   }
 
   return (
-
-
     <div className="max-w-2xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Create a New Recipe</h1>
       <form onSubmit={handleSubmit}>
@@ -355,12 +334,14 @@ export default function CreateRecipePage() {
                     label: food.name,
                   }))}
                   value={{
-                    value: ingredient.foodId,
+                    value: ingredient.id,
                     label: ingredient.foodName
                   }}
-                  onChange={(selectedOption: any) => {
-                    updateIngredient(index, 'foodId', selectedOption.value);
-                    updateIngredient(index, 'foodName', selectedOption.label);
+                  onChange={(selectedOption) => {
+                    if (selectedOption) {
+                      updateIngredient(index, 'id', selectedOption.value);
+                      updateIngredient(index, 'foodName', selectedOption.label);
+                    }
                   }}
                   className="flex-grow"
                   isSearchable
@@ -368,8 +349,8 @@ export default function CreateRecipePage() {
                   styles={{
                     control: (base, state) => ({
                       ...base,
-                      backgroundColor: "#374151", // bg-gray-700
-                      borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // border-gray-300, focus:ring-blue-500
+                      backgroundColor: "#374151",
+                      borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
                       color: "#ffffff",
                       "&:hover": {
                         borderColor: "#3b82f6",
@@ -377,16 +358,16 @@ export default function CreateRecipePage() {
                     }),
                     menu: (base) => ({
                       ...base,
-                      backgroundColor: "#374151", // bg-gray-700
+                      backgroundColor: "#374151",
                       color: "#ffffff",
                     }),
                     input: (base) => ({
                       ...base,
-                      color: "#ffffff", // White text
+                      color: "#ffffff",
                     }),
                     placeholder: (base) => ({
                       ...base,
-                      color: "#9ca3af", // text-gray-400
+                      color: "#9ca3af",
                     }),
                     singleValue: (base) => ({
                       ...base,
@@ -429,7 +410,7 @@ export default function CreateRecipePage() {
               setFormData((prev) => ({
                 ...prev,
                 ingredients: [...prev.ingredients, {
-                  foodId: 0,
+                  id: 0,
                   foodName: '',
                   weight: 100,
                   notes: ''
@@ -508,4 +489,3 @@ export default function CreateRecipePage() {
     </div>
   );
 }
-
