@@ -165,9 +165,11 @@ export default function CreateRecipePage() {
 
       const data = await response.json();
 
+
+
       if (response.ok) {
-        setSuccessMessage(`Recipe created successfully: ${data.name}`);
-        router.push(`/recipe/${data.id}`);
+        setSuccessMessage(`Recipe created successfully: ${data.recipe.name}`);
+        router.push(`/recipe/${data.recipe.id}`);
       } else {
         setError(data.error || "An error occurred.");
       }

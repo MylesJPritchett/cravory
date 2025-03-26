@@ -74,7 +74,7 @@ export default function CreateFoodPage() {
             type="text"
             value={formData.name}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded"
+            className="mt-1 block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded"
             required
           />
         </div>
@@ -89,7 +89,7 @@ export default function CreateFoodPage() {
             type="text"
             value={formData.description}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded"
+            className="mt-1 block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded"
           />
         </div>
 
@@ -104,7 +104,7 @@ export default function CreateFoodPage() {
               type="number"
               value={formData.protein}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded"
+              className="mt-1 block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded"
             />
           </div>
           <div>
@@ -117,7 +117,7 @@ export default function CreateFoodPage() {
               type="number"
               value={formData.fat}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded"
+              className="mt-1 block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded"
             />
           </div>
           <div>
@@ -130,7 +130,7 @@ export default function CreateFoodPage() {
               type="number"
               value={formData.carbohydrates}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded"
+              className="mt-1 block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded"
             />
           </div>
           <div>
@@ -143,7 +143,7 @@ export default function CreateFoodPage() {
               type="number"
               value={formData.energy}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded"
+              className="mt-1 block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded"
             />
           </div>
           <div>
@@ -156,7 +156,7 @@ export default function CreateFoodPage() {
               type="number"
               value={formData.fiber}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded"
+              className="mt-1 block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded"
             />
           </div>
         </div>

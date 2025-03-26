@@ -13,6 +13,9 @@ export default function HomePage() {
           <h1 className="text-2xl">Welcome, {session.user.name}!</h1>
           <p>Email: {session.user.email}</p>
           <Link href="/search"> Search Recipes</Link>
+          <Link href="/recipe/create"> Create Recipes</Link>
+          <Link href="/food/create"> Create Food</Link>
+
           <button onClick={() => signOut()} className="mt-4 bg-red-500 text-white px-4 py-2">
             Sign Out
           </button>
