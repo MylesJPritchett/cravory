@@ -67,7 +67,8 @@ export default function Search() {
 
         {/* No results found */}
         {results.recipes.length === 0 && results.foods.length === 0 && (
-          <p className="mt-4 text-gray-500">No results found</p>
+          <p className="mt-4 text-gray-500">No results found. Want to <Link href="/recipe/create">Create a Recipe </Link >or <Link href="/food/create">Create a Food</Link>?</p>
+
         )}
       </div>
     </div>
