@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
-import { Trash2, PlusCircle, GripVertical, Edit2 } from "lucide-react";
+import { Trash2, PlusCircle, GripVertical, Minus, Plus } from "lucide-react";
 import {
   DragDropContext,
   Droppable,
@@ -14,18 +14,35 @@ import {
   Food
 } from '@/app/types';
 
+// Common measurement units
+const UNITS = [
+  { value: 'g', label: 'g' },
+  { value: 'kg', label: 'kg' },
+  { value: 'ml', label: 'ml' },
+  { value: 'l', label: 'l' },
+  { value: 'tsp', label: 'tsp' },
+  { value: 'tbsp', label: 'tbsp' },
+  { value: 'cup', label: 'cup' },
+  { value: 'oz', label: 'oz' },
+  { value: 'lb', label: 'lb' },
+  { value: 'pinch', label: 'pinch' },
+  { value: 'piece', label: 'piece' },
+  { value: 'slice', label: 'slice' },
+  { value: 'whole', label: 'whole' },
+];
 
 export default function CreateRecipePage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     method: [] as string[],
-    cooking_time: 0,
-    servings: 0,
+    cooking_time: 30,
+    servings: 4,
     ingredients: [] as {
       id: number;
       foodName: string;
-      weight: number;
+      quantity: number;
+      unit: string;
       notes?: string;
     }[],
   });
@@ -34,10 +51,6 @@ export default function CreateRecipePage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
-  const [editingField, setEditingField] = useState<{
-    type: 'name' | 'description' | 'servings' | 'cooking_time' | null,
-    value: string | number
-  }>({ type: null, value: '' });
   const router = useRouter();
 
   useEffect(() => {
@@ -59,24 +72,22 @@ export default function CreateRecipePage() {
     fetchFoods();
   }, []);
 
-  const handleEditField = (type: 'name' | 'description' | 'servings' | 'cooking_time', currentValue: string | number) => {
-    setEditingField({ type, value: currentValue });
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const saveEditedField = () => {
-    if (editingField.type) {
-      setFormData(prev => {
-        const updatedFormData = { ...prev };
-
-        if (editingField.type === 'name') updatedFormData.name = String(editingField.value);
-        else if (editingField.type === 'description') updatedFormData.description = String(editingField.value);
-        else if (editingField.type === 'servings') updatedFormData.servings = Number(editingField.value);
-        else if (editingField.type === 'cooking_time') updatedFormData.cooking_time = Number(editingField.value);
-
-        return updatedFormData;
-      });
-      setEditingField({ type: null, value: '' });
-    }
+  const adjustNumber = (field: 'cooking_time' | 'servings', amount: number) => {
+    setFormData(prev => {
+      const currentValue = prev[field] as number;
+      const newValue = Math.max(1, currentValue + amount); // Ensure value is at least 1
+      return {
+        ...prev,
+        [field]: newValue
+      };
+    });
   };
 
   const removeIngredient = (indexToRemove: number) => {
@@ -137,13 +148,24 @@ export default function CreateRecipePage() {
     setError(null);
     setSuccessMessage(null);
 
+    // Convert ingredients to the format expected by the API
+    const apiFormData = {
+      ...formData,
+      ingredients: formData.ingredients.map(ingredient => ({
+        id: ingredient.id,
+        foodName: ingredient.foodName,
+        weight: ingredient.unit === 'g' ? ingredient.quantity : ingredient.quantity, // For now, just use quantity directly
+        notes: `${ingredient.quantity} ${ingredient.unit} ${ingredient.notes ? '- ' + ingredient.notes : ''}`
+      }))
+    };
+
     try {
       const response = await fetch("/api/recipe/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiFormData),
       });
 
       const data = await response.json();
@@ -167,243 +189,237 @@ export default function CreateRecipePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Create a New Recipe</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-2xl mx-auto p-4 bg-gray-900 text-white">
+      <h1 className="text-3xl font-bold mb-6 text-center">Create a New Recipe</h1>
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Recipe Name */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <label htmlFor="name" className="block text-sm font-medium text-white">
-              Recipe Name
-            </label>
-            {editingField.type !== 'name' && (
-              <button
-                type="button"
-                onClick={() => handleEditField('name', formData.name)}
-                className="text-blue-500 hover:text-blue-700 flex items-center"
-              >
-                <Edit2 size={16} className="mr-1" /> Edit
-              </button>
-            )}
-          </div>
-          {editingField.type === 'name' ? (
-            <div className="flex items-center space-x-2 mt-1">
-              <input
-                type="text"
-                value={editingField.value}
-                onChange={(e) => setEditingField(prev => ({ ...prev, value: e.target.value }))}
-                className="flex-grow block w-full p-2 bg-gray-700 text-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={saveEditedField}
-                className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <p className="mt-1 p-2 bg-gray-700 text-white rounded">{formData.name || 'Not set'}</p>
-          )}
+        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+            Recipe Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter recipe name"
+          />
         </div>
 
         {/* Description */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <label htmlFor="description" className="block text-sm font-medium text-white">
-              Description
-            </label>
-            {editingField.type !== 'description' && (
-              <button
-                type="button"
-                onClick={() => handleEditField('description', formData.description)}
-                className="text-blue-500 hover:text-blue-700 flex items-center"
-              >
-                <Edit2 size={16} className="mr-1" /> Edit
-              </button>
-            )}
-          </div>
-          {editingField.type === 'description' ? (
-            <div className="flex items-center space-x-2 mt-1">
-              <textarea
-                value={editingField.value}
-                onChange={(e) => setEditingField(prev => ({ ...prev, value: e.target.value }))}
-                className="flex-grow block w-full p-2 border bg-gray-700 text-white border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={3}
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={saveEditedField}
-                className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <p className="mt-1 p-2 bg-gray-700 text-white rounded">{formData.description || 'Not set'}</p>
-          )}
+        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
+            Description
+          </label>
+          <textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows={3}
+            placeholder="Describe your recipe"
+          />
         </div>
 
-        {/* Servings */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <label htmlFor="servings" className="block text-sm font-medium text-white">
+        {/* Servings & Cooking Time */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Servings
             </label>
-            {editingField.type !== 'servings' && (
+            <div className="flex items-center">
               <button
                 type="button"
-                onClick={() => handleEditField('servings', formData.servings)}
-                className="text-blue-500 hover:text-blue-700 flex items-center"
+                onClick={() => adjustNumber('servings', -1)}
+                className="bg-gray-700 p-2 rounded-l-md border-r border-gray-600 hover:bg-gray-600"
               >
-                <Edit2 size={16} className="mr-1" /> Edit
+                <Minus size={16} />
               </button>
-            )}
-          </div>
-          {editingField.type === 'servings' ? (
-            <div className="flex items-center space-x-2 mt-1">
               <input
                 type="number"
-                value={editingField.value}
-                onChange={(e) => setEditingField(prev => ({ ...prev, value: Number(e.target.value) }))}
-                className="flex-grow block w-full p-2 bg-gray-700 text-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
+                value={formData.servings}
+                onChange={(e) => handleInputChange('servings', Number(e.target.value))}
+                className="flex-grow p-2 bg-gray-700 text-white text-center border-y border-gray-600 focus:outline-none"
+                min="1"
               />
               <button
                 type="button"
-                onClick={saveEditedField}
-                className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
+                onClick={() => adjustNumber('servings', 1)}
+                className="bg-gray-700 p-2 rounded-r-md border-l border-gray-600 hover:bg-gray-600"
               >
-                Save
+                <Plus size={16} />
               </button>
             </div>
-          ) : (
-            <p className="mt-1 p-2 bg-gray-700 text-white rounded">{formData.servings || 'Not set'}</p>
-          )}
-        </div>
+          </div>
 
-        {/* Cooking Time */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <label htmlFor="cooking_time" className="block text-sm font-medium text-white">
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Cooking Time (minutes)
             </label>
-            {editingField.type !== 'cooking_time' && (
+            <div className="flex items-center">
               <button
                 type="button"
-                onClick={() => handleEditField('cooking_time', formData.cooking_time)}
-                className="text-blue-500 hover:text-blue-700 flex items-center"
+                onClick={() => adjustNumber('cooking_time', -5)}
+                className="bg-gray-700 p-2 rounded-l-md border-r border-gray-600 hover:bg-gray-600"
               >
-                <Edit2 size={16} className="mr-1" /> Edit
+                <Minus size={16} />
               </button>
-            )}
-          </div>
-          {editingField.type === 'cooking_time' ? (
-            <div className="flex items-center space-x-2 mt-1">
               <input
                 type="number"
-                value={editingField.value}
-                onChange={(e) => setEditingField(prev => ({ ...prev, value: Number(e.target.value) }))}
-                className="flex-grow block w-full p-2 bg-gray-700 text-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
+                value={formData.cooking_time}
+                onChange={(e) => handleInputChange('cooking_time', Number(e.target.value))}
+                className="flex-grow p-2 bg-gray-700 text-white text-center border-y border-gray-600 focus:outline-none"
+                min="1"
               />
               <button
                 type="button"
-                onClick={saveEditedField}
-                className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
+                onClick={() => adjustNumber('cooking_time', 5)}
+                className="bg-gray-700 p-2 rounded-r-md border-l border-gray-600 hover:bg-gray-600"
               >
-                Save
+                <Plus size={16} />
               </button>
             </div>
-          ) : (
-            <p className="mt-1 p-2 bg-gray-700 text-white rounded">{formData.cooking_time ? `${formData.cooking_time} minutes` : 'Not set'}</p>
-          )}
+          </div>
         </div>
 
         {/* Ingredients */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-white mb-2">Ingredients</label>
+        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+          <label className="block text-sm font-medium text-gray-300 mb-3">Ingredients</label>
+          
+          {formData.ingredients.length === 0 && (
+            <div className="text-center py-4 text-gray-400">
+              No ingredients added yet. Add your first ingredient below.
+            </div>
+          )}
+          
           {formData.ingredients.map((ingredient, index) => (
-            <div key={index} className="flex flex-col mb-2 p-2 bg-gray-700 text-white border border-gray-300 rounded">
-              <div className="flex items-center space-x-2 mb-2">
-                <Select
-                  options={foods.map((food) => ({
-                    value: food.id,
-                    label: food.name,
-                  }))}
-                  value={{
-                    value: ingredient.id,
-                    label: ingredient.foodName
-                  }}
-                  onChange={(selectedOption) => {
-                    if (selectedOption) {
-                      updateIngredient(index, 'id', selectedOption.value);
-                      updateIngredient(index, 'foodName', selectedOption.label);
-                    }
-                  }}
-                  className="flex-grow"
-                  isSearchable
-                  placeholder="Select food"
-                  styles={{
-                    control: (base, state) => ({
-                      ...base,
-                      backgroundColor: "#374151",
-                      borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
-                      color: "#ffffff",
-                      "&:hover": {
-                        borderColor: "#3b82f6",
-                      },
-                    }),
-                    menu: (base) => ({
-                      ...base,
-                      backgroundColor: "#374151",
-                      color: "#ffffff",
-                    }),
-                    input: (base) => ({
-                      ...base,
-                      color: "#ffffff",
-                    }),
-                    placeholder: (base) => ({
-                      ...base,
-                      color: "#9ca3af",
-                    }),
-                    singleValue: (base) => ({
-                      ...base,
-                      color: "#ffffff",
-                    }),
-                    option: (base, { isFocused, isSelected }) => ({
-                      ...base,
-                      backgroundColor: isSelected ? "#2563eb" : isFocused ? "#1e40af" : "#374151",
-                      color: "#ffffff",
-                    }),
-                  }}
-                />
-                <input
-                  type="number"
-                  value={ingredient.weight}
-                  onChange={(e) => updateIngredient(index, 'weight', Number(e.target.value))}
-                  className="w-24 p-2 bg-gray-700 text-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Weight (g)"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeIngredient(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <Trash2 size={20} />
-                </button>
+            <div key={index} className="mb-3 p-3 bg-gray-700 rounded-lg border border-gray-600">
+              <div className="flex flex-col md:flex-row gap-2 mb-2">
+                <div className="flex-grow">
+                  <Select
+                    options={foods.map((food) => ({
+                      value: food.id,
+                      label: food.name,
+                    }))}
+                    value={ingredient.id ? {
+                      value: ingredient.id,
+                      label: ingredient.foodName
+                    } : null}
+                    onChange={(selectedOption) => {
+                      if (selectedOption) {
+                        updateIngredient(index, 'id', selectedOption.value);
+                        updateIngredient(index, 'foodName', selectedOption.label);
+                      }
+                    }}
+                    className="flex-grow"
+                    isSearchable
+                    placeholder="Select ingredient"
+                    styles={{
+                      control: (base, state) => ({
+                        ...base,
+                        backgroundColor: "#374151",
+                        borderColor: state.isFocused ? "#3b82f6" : "#4B5563",
+                        color: "#ffffff",
+                        "&:hover": {
+                          borderColor: "#3b82f6",
+                        },
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        backgroundColor: "#374151",
+                        color: "#ffffff",
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        color: "#ffffff",
+                      }),
+                      placeholder: (base) => ({
+                        ...base,
+                        color: "#9ca3af",
+                      }),
+                      singleValue: (base) => ({
+                        ...base,
+                        color: "#ffffff",
+                      }),
+                      option: (base, { isFocused, isSelected }) => ({
+                        ...base,
+                        backgroundColor: isSelected ? "#2563eb" : isFocused ? "#1e40af" : "#374151",
+                        color: "#ffffff",
+                      }),
+                    }}
+                  />
+                </div>
+                
+                <div className="flex">
+                  <input
+                    type="number"
+                    value={ingredient.quantity}
+                    onChange={(e) => updateIngredient(index, 'quantity', Number(e.target.value))}
+                    className="w-20 p-2 bg-gray-700 text-white border border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Qty"
+                    min="0"
+                    step="0.1"
+                  />
+                  <Select
+                    options={UNITS}
+                    value={UNITS.find(unit => unit.value === ingredient.unit) || UNITS[0]}
+                    onChange={(selectedOption) => {
+                      if (selectedOption) {
+                        updateIngredient(index, 'unit', selectedOption.value);
+                      }
+                    }}
+                    className="w-24"
+                    isSearchable
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#374151",
+                        borderColor: "#4B5563",
+                        borderRadius: "0",
+                        minHeight: "42px",
+                        color: "#ffffff",
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        backgroundColor: "#374151",
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        color: "#ffffff",
+                      }),
+                      singleValue: (base) => ({
+                        ...base,
+                        color: "#ffffff",
+                      }),
+                      option: (base, { isFocused, isSelected }) => ({
+                        ...base,
+                        backgroundColor: isSelected ? "#2563eb" : isFocused ? "#1e40af" : "#374151",
+                        color: "#ffffff",
+                      }),
+                    }}
+                  />
+                  
+                  <button
+                    type="button"
+                    onClick={() => removeIngredient(index)}
+                    className="p-2 bg-red-800 text-white rounded-r-md hover:bg-red-700"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
+              
               <input
                 type="text"
                 value={ingredient.notes || ''}
                 onChange={(e) => updateIngredient(index, 'notes', e.target.value)}
-                className="w-full p-2 bg-gray-700 text-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Additional notes (optional)"
+                className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Additional notes (e.g., chopped, diced, etc.)"
               />
             </div>
           ))}
+          
           <button
             type="button"
             onClick={() => {
@@ -412,48 +428,59 @@ export default function CreateRecipePage() {
                 ingredients: [...prev.ingredients, {
                   id: 0,
                   foodName: '',
-                  weight: 100,
+                  quantity: 100,
+                  unit: 'g',
                   notes: ''
                 }]
               }));
             }}
-            className="flex items-center text-blue-500 hover:text-blue-700 mt-2"
+            className="flex items-center justify-center w-full py-2 mt-2 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             <PlusCircle size={16} className="mr-2" /> Add Ingredient
           </button>
         </div>
 
         {/* Method Steps */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-white mb-2">Method Steps</label>
+        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+          <label className="block text-sm font-medium text-gray-300 mb-3">Cooking Steps</label>
+          
+          {formData.method.length === 0 && (
+            <div className="text-center py-4 text-gray-400">
+              No steps added yet. Add your first cooking step below.
+            </div>
+          )}
+          
           <DragDropContext onDragEnd={onDragEndMethod}>
             <Droppable droppableId="method-steps">
               {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
+                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
                   {formData.method.map((step, index) => (
                     <Draggable key={index} draggableId={`step-${index}`} index={index}>
                       {(provided) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className="flex items-center mb-2 space-x-2"
+                          className="flex items-start gap-2 bg-gray-700 rounded-lg border border-gray-600 p-2"
                         >
-                          <div {...provided.dragHandleProps} className="cursor-move">
-                            <GripVertical size={20} className="text-white" />
+                          <div {...provided.dragHandleProps} className="cursor-move p-2 bg-gray-600 rounded-md">
+                            <GripVertical size={20} className="text-gray-300" />
+                          </div>
+                          <div className="flex-shrink-0 bg-blue-800 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            {index + 1}
                           </div>
                           <textarea
                             value={step}
                             onChange={(e) => updateMethodStep(index, e.target.value)}
-                            className="flex-grow p-2 bg-gray-700 text-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder={`Step ${index + 1}`}
+                            className="flex-grow p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder={`Describe step ${index + 1}`}
                             rows={2}
                           />
                           <button
                             type="button"
                             onClick={() => removeMethodStep(index)}
-                            className="text-red-500 hover:text-red-700"
+                            className="p-2 bg-red-800 text-white rounded-md hover:bg-red-700"
                           >
-                            <Trash2 size={20} />
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       )}
@@ -464,28 +491,38 @@ export default function CreateRecipePage() {
               )}
             </Droppable>
           </DragDropContext>
+          
           <button
             type="button"
             onClick={addMethodStep}
-            className="flex items-center text-blue-500 hover:text-blue-700 mt-2"
+            className="flex items-center justify-center w-full py-2 mt-3 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             <PlusCircle size={16} className="mr-2" /> Add Step
           </button>
         </div>
 
-        <div className="mb-4">
+        <div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium text-lg"
           >
             {loading ? "Creating..." : "Create Recipe"}
           </button>
         </div>
       </form>
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-      {successMessage && <p className="text-green-500 mt-4">{successMessage}</p>}
+      {error && (
+        <div className="mt-4 p-3 bg-red-900 text-white rounded-md">
+          {error}
+        </div>
+      )}
+      
+      {successMessage && (
+        <div className="mt-4 p-3 bg-green-900 text-white rounded-md">
+          {successMessage}
+        </div>
+      )}
     </div>
   );
 }
