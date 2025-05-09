@@ -205,8 +205,51 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
               </svg>
               Preparation Method
             </h2>
+            
+            {/* Ingredients Summary */}
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-6">
+              <h3 className="text-lg font-medium mb-3 text-gray-300 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Ingredients
+              </h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {recipe.ingredients.map((ingredient) => (
+                  <li key={ingredient.id} className="flex items-center text-gray-300">
+                    <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    <span className="font-medium">{ingredient.weight}g</span>
+                    <span className="mx-2 text-gray-500">of</span>
+                    <span>{ingredient.name}</span>
+                    {ingredient.notes && <span className="ml-1 text-gray-500 italic">({ingredient.notes})</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Cooking Steps */}
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <p className="whitespace-pre-wrap text-gray-300 leading-relaxed">{recipe.method}</p>
+              <h3 className="text-lg font-medium mb-3 text-gray-300 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+                Cooking Steps
+              </h3>
+              
+              {recipe.method.includes('\n') ? (
+                <ol className="space-y-4 text-gray-300 leading-relaxed">
+                  {recipe.method.split('\n').filter(step => step.trim()).map((step, index) => (
+                    <li key={index} className="pl-6 relative">
+                      <span className="absolute left-0 top-0 flex items-center justify-center w-5 h-5 rounded-full bg-blue-900 text-xs font-bold">
+                        {index + 1}
+                      </span>
+                      <span className="whitespace-pre-wrap">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="whitespace-pre-wrap text-gray-300 leading-relaxed">{recipe.method}</p>
+              )}
             </div>
           </div>
         )}
