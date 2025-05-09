@@ -150,8 +150,8 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
                             {ingredient.weight}g
                           </span>
                         </div>
-                        {ingredient.notes && (
-                          <p className="text-sm text-gray-400 mt-1">{ingredient.notes}</p>
+                        {(ingredient as ExtendedIngredient).notes && (
+                          <p className="text-sm text-gray-400 mt-1">{(ingredient as ExtendedIngredient).notes}</p>
                         )}
                       </div>
                     ))}
@@ -231,7 +231,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
                     <span className="font-medium">{ingredient.weight}g</span>
                     <span className="mx-2 text-gray-500">of</span>
                     <span>{ingredient.name}</span>
-                    {ingredient.notes && <span className="ml-1 text-gray-500 italic">({ingredient.notes})</span>}
+                    {(ingredient as ExtendedIngredient).notes && <span className="ml-1 text-gray-500 italic">({(ingredient as ExtendedIngredient).notes})</span>}
                   </li>
                 ))}
               </ul>
