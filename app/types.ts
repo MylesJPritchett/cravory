@@ -22,6 +22,7 @@ export interface Ingredient extends Pick<Food,
   'fiber'
 > {
   weight: number;
+  notes?: string;
 }
 
 // Extended type for recipe with ingredients
