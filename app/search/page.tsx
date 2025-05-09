@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 
 interface SearchResults {
@@ -18,21 +18,34 @@ export default function Search() {
     setResults(data);
   }, [query]);
 
+  // Effect to trigger search when query changes
+  useEffect(() => {
+    // Add a small delay to avoid too many requests while typing
+    const debounceTimeout = setTimeout(() => {
+      if (query.trim()) {
+        handleSearch();
+      } else {
+        setResults({ recipes: [], foods: [] });
+      }
+    }, 300);
+    
+    return () => clearTimeout(debounceTimeout);
+  }, [query, handleSearch]);
+
   return (
     <div className="flex flex-col items-center min-h-screen w-full">
       {/* Sticky Search Box */}
       <div className="w-full bg-gray-800 shadow-md flex flex-col items-center py-4">
         <h1 className="text-2xl font-bold mb-2">Recipe and Food Search</h1>
-        <form onSubmit={handleSearch} className="flex flex-col items-center w-full max-w-md">
+        <div className="flex flex-col items-center w-full max-w-md">
           <input
             type="text"
             placeholder="Search for recipes or foods..."
             value={query}
-            className="bg-gray-700 text-white p-2 rounded w-full mb-2"
+            className="bg-gray-700 text-white p-2 rounded w-full"
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
-        </form>
+        </div>
       </div>
 
       {/* Search Results */}
