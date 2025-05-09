@@ -27,8 +27,8 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   );
 
   // Separate ingredients into base ingredients and prepared ingredients (from other recipes)
-  const baseIngredients = recipe.ingredients.filter(ingredient => !ingredient.corresponding_recipe);
-  const preparedIngredients = recipe.ingredients.filter(ingredient => ingredient.corresponding_recipe);
+  const baseIngredients = recipe.ingredients.filter(ingredient => !('corresponding_recipe' in ingredient));
+  const preparedIngredients = recipe.ingredients.filter(ingredient => 'corresponding_recipe' in ingredient);
 
   // Calculate total weight
   const totalWeight = recipe.ingredients.reduce((total, ingredient) => total + Number(ingredient.weight || 0), 0);
@@ -166,7 +166,7 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
                             <Link href={`/food/${ingredient.id}`} className="text-blue-400 hover:text-blue-300 font-medium">
                               {ingredient.name}
                             </Link>
-                            {ingredient.corresponding_recipe && (
+                            {('corresponding_recipe' in ingredient) && ingredient.corresponding_recipe && (
                               <div className="mt-1">
                                 <Link 
                                   href={`/recipe/${ingredient.corresponding_recipe.id}`} 
