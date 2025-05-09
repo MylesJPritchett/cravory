@@ -97,7 +97,7 @@ export default function Search() {
             {isLoading ? (
               <p>Searching...</p>
             ) : (
-              <p>Found {totalResults} {totalResults === 1 ? 'result' : 'results'} for "{query}"</p>
+              <p>Found {totalResults} {totalResults === 1 ? 'result' : 'results'} for &quot;{query}&quot;</p>
             )}
           </div>
         )}
