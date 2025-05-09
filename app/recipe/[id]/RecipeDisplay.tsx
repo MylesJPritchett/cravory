@@ -1,6 +1,6 @@
 'use client';
 
-import { RecipeWithFoods } from '@/app/types';
+import { RecipeWithFoods, Ingredient } from '@/app/types';
 import Link from 'next/link';
 import { useState } from 'react';
 
