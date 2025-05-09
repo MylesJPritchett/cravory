@@ -8,6 +8,14 @@ interface RecipeDisplayProps {
   recipe: RecipeWithFoods;
 }
 
+// Extended ingredient type with optional corresponding_recipe
+interface ExtendedIngredient extends Ingredient {
+  corresponding_recipe?: {
+    id: number;
+    name: string;
+  };
+}
+
 export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'method' | 'nutrition'>('overview');
   
@@ -27,8 +35,10 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
   );
 
   // Separate ingredients into base ingredients and prepared ingredients (from other recipes)
-  const baseIngredients = recipe.ingredients.filter(ingredient => !('corresponding_recipe' in ingredient));
-  const preparedIngredients = recipe.ingredients.filter(ingredient => 'corresponding_recipe' in ingredient);
+  const baseIngredients = recipe.ingredients.filter(ingredient => 
+    !(ingredient as ExtendedIngredient).corresponding_recipe);
+  const preparedIngredients = recipe.ingredients.filter(ingredient => 
+    (ingredient as ExtendedIngredient).corresponding_recipe);
 
   // Calculate total weight
   const totalWeight = recipe.ingredients.reduce((total, ingredient) => total + Number(ingredient.weight || 0), 0);
@@ -166,16 +176,16 @@ export default function RecipeDisplay({ recipe }: RecipeDisplayProps) {
                             <Link href={`/food/${ingredient.id}`} className="text-blue-400 hover:text-blue-300 font-medium">
                               {ingredient.name}
                             </Link>
-                            {('corresponding_recipe' in ingredient) && ingredient.corresponding_recipe && (
+                            {(ingredient as ExtendedIngredient).corresponding_recipe && (
                               <div className="mt-1">
                                 <Link 
-                                  href={`/recipe/${ingredient.corresponding_recipe.id}`} 
+                                  href={`/recipe/${(ingredient as ExtendedIngredient).corresponding_recipe!.id}`} 
                                   className="text-xs text-yellow-500 hover:text-yellow-400 flex items-center"
                                 >
                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                   </svg>
-                                  View recipe: {ingredient.corresponding_recipe.name}
+                                  View recipe: {(ingredient as ExtendedIngredient).corresponding_recipe!.name}
                                 </Link>
                               </div>
                             )}
